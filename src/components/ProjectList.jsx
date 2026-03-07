@@ -244,7 +244,7 @@ export default function ProjectList() {
 
             <span className="inline-flex items-center gap-1 text-[10px] text-white/35 ml-auto">
               <Calendar size={10} />
-              {formatDate(repo.updated_at)}
+              {formatDate(repo.pushed_at)}
             </span>
           </div>
 
