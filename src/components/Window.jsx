@@ -1,5 +1,6 @@
 import { motion } from 'framer-motion';
 import { X, Minus, Square } from 'lucide-react';
+import ProjectList from './ProjectList';
 
 export default function Window({ title, zIndex, onClose, bringToFront }) {
   return (
@@ -27,7 +28,7 @@ export default function Window({ title, zIndex, onClose, bringToFront }) {
         </div>
       </div>
       <div className="flex-1 p-4 text-white bg-black/5 overflow-y-auto">
-        Content for {title}
+        <ProjectList />
       </div>
     </motion.div>
   );
