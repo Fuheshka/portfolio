@@ -1,113 +1,130 @@
-import { motion } from 'framer-motion';
-import { Github, Mail, ExternalLink } from 'lucide-react';
+import { useState } from 'react';
+import { motion, AnimatePresence } from 'framer-motion';
+import { Github, Mail, Send, MessageCircle, Check, Copy } from 'lucide-react';
 
-// ─── Social links data ─────────────────────────────────────────────────────
-const LINKS = [
+const EMAIL = 'fuheshka@gmail.com';
+
+const SOCIALS = [
   {
     id: 'github',
     label: 'GitHub',
-    sub: 'github.com/Fuheshka',
     href: 'https://github.com/Fuheshka',
     icon: Github,
-    from: 'from-slate-500/40',
-    to: 'to-slate-700/40',
-    border: 'border-slate-400/30',
-    hover: 'hover:border-slate-300/60 hover:shadow-slate-400/30',
-    iconColor: 'text-white',
+    style: 'bg-slate-500/25 border-slate-300/40 hover:bg-slate-400/35 hover:shadow-slate-300/30',
   },
   {
-    id: 'email',
-    label: 'Email',
-    sub: 'fuheshka@gmail.com',
-    href: 'mailto:fuheshka@gmail.com',
-    icon: Mail,
-    from: 'from-cyan-500/30',
-    to: 'to-teal-600/30',
-    border: 'border-cyan-400/30',
-    hover: 'hover:border-cyan-300/60 hover:shadow-cyan-400/30',
-    iconColor: 'text-cyan-300',
+    id: 'telegram',
+    label: 'Telegram',
+    href: 'https://t.me/fuheshka',
+    icon: Send,
+    style: 'bg-sky-500/25 border-sky-300/40 hover:bg-sky-400/35 hover:shadow-sky-300/30',
+  },
+  {
+    id: 'discord',
+    label: 'Discord',
+    href: 'https://discordapp.com/users/316858178073526273',
+    icon: MessageCircle,
+    style: 'bg-indigo-500/25 border-indigo-300/40 hover:bg-indigo-400/35 hover:shadow-indigo-300/30',
   },
 ];
 
-// ─── Single link card ──────────────────────────────────────────────────────
-function LinkCard({ link, delay }) {
-  const Icon = link.icon;
+function SocialButton({ item, delay }) {
+  const Icon = item.icon;
   return (
     <motion.a
-      href={link.href}
-      target={link.id !== 'email' ? '_blank' : undefined}
+      href={item.href}
+      target="_blank"
       rel="noreferrer"
-      initial={{ opacity: 0, y: 20, scale: 0.97 }}
+      initial={{ opacity: 0, y: 16, scale: 0.96 }}
       animate={{ opacity: 1, y: 0, scale: 1 }}
-      transition={{ type: 'spring', stiffness: 260, damping: 22, delay }}
-      whileHover={{ scale: 1.03 }}
+      transition={{ type: 'spring', stiffness: 280, damping: 22, delay }}
+      whileHover={{ scale: 1.03, y: -1 }}
+      whileTap={{ scale: 0.97 }}
       className={[
-        'group relative flex items-center gap-4 rounded-2xl overflow-hidden',
-        `bg-gradient-to-r ${link.from} ${link.to}`,
-        'backdrop-blur-md border',
-        link.border,
-        'shadow-lg',
-        link.hover,
-        'p-5 transition-all duration-300',
+        'group w-full h-12 rounded-xl border backdrop-blur-md',
+        'flex items-center justify-center gap-2',
+        'text-white font-semibold text-sm',
+        'shadow-lg transition-all duration-250',
+        item.style,
       ].join(' ')}
     >
-      {/* Top gloss */}
-      <div className="absolute inset-x-0 top-0 h-1/2 bg-gradient-to-b from-white/15 to-transparent pointer-events-none rounded-t-2xl" />
-
-      {/* Icon circle */}
-      <div className={`relative z-10 shrink-0 w-12 h-12 rounded-xl flex items-center justify-center bg-white/10 border border-white/20 shadow-md`}>
-        <Icon size={22} className={link.iconColor} />
-      </div>
-
-      {/* Text */}
-      <div className="relative z-10 flex-1 min-w-0">
-        <p className="font-bold text-white text-sm leading-none">{link.label}</p>
-        <p className="text-[11px] text-white/45 mt-1 truncate">{link.sub}</p>
-      </div>
-
-      {/* Arrow */}
-      <ExternalLink
-        size={14}
-        className="relative z-10 shrink-0 text-white/25 group-hover:text-white/70 transition-colors"
-      />
+      <Icon size={18} className="text-white" />
+      {item.label}
     </motion.a>
   );
 }
 
-// ─── Component ─────────────────────────────────────────────────────────────
 export default function Contact() {
+  const [copied, setCopied] = useState(false);
+
+  async function copyEmail() {
+    try {
+      await navigator.clipboard.writeText(EMAIL);
+      setCopied(true);
+      setTimeout(() => setCopied(false), 1400);
+    } catch {
+      setCopied(false);
+    }
+  }
+
   return (
-    <div className="flex flex-col items-center justify-center min-h-full gap-6 p-4 pb-8">
-
-      {/* Header */}
+    <div className="min-h-full flex items-center justify-center p-4">
       <motion.div
-        initial={{ opacity: 0, y: -12 }}
-        animate={{ opacity: 1, y: 0 }}
-        transition={{ duration: 0.4 }}
-        className="text-center"
+        initial={{ opacity: 0, y: 18, scale: 0.98 }}
+        animate={{ opacity: 1, y: 0, scale: 1 }}
+        transition={{ type: 'spring', stiffness: 260, damping: 24 }}
+        className="relative w-full max-w-md rounded-2xl overflow-hidden
+          border border-white/40 bg-white/15 backdrop-blur-md shadow-xl p-6"
       >
-        <h2 className="text-xl font-bold text-white">Get in touch</h2>
-        <p className="text-xs text-white/45 mt-1">Pick your preferred channel</p>
+        <div className="absolute inset-x-0 top-0 h-1/2 bg-gradient-to-b from-white/20 to-transparent pointer-events-none" />
+
+        <div className="relative z-10 text-center mb-5">
+          <h2 className="text-2xl font-bold text-white drop-shadow-sm">Let&apos;s Connect</h2>
+          <p className="text-sm text-white/85 mt-1">Open for freelance and collaboration</p>
+        </div>
+
+        <div className="relative z-10 flex flex-col gap-3">
+          <motion.button
+            onClick={copyEmail}
+            whileHover={{ scale: 1.02, y: -1 }}
+            whileTap={{ scale: 0.98 }}
+            className="relative w-full h-14 rounded-xl border border-cyan-300/40 bg-cyan-500/30
+              hover:bg-cyan-400/40 shadow-lg hover:shadow-cyan-300/35
+              text-white font-bold text-base transition-all duration-250
+              flex items-center justify-center gap-2"
+          >
+            {copied ? <Check size={20} /> : <Mail size={20} />}
+            {copied ? 'Copied!' : EMAIL}
+
+            <AnimatePresence>
+              {copied && (
+                <motion.span
+                  initial={{ opacity: 0, y: 8, scale: 0.9 }}
+                  animate={{ opacity: 1, y: 0, scale: 1 }}
+                  exit={{ opacity: 0, y: 6, scale: 0.95 }}
+                  transition={{ duration: 0.2 }}
+                  className="absolute -top-9 left-1/2 -translate-x-1/2
+                    text-[11px] font-semibold text-white bg-black/45
+                    border border-white/25 rounded-md px-2 py-1"
+                >
+                  copied!
+                </motion.span>
+              )}
+            </AnimatePresence>
+          </motion.button>
+
+          <div className="grid grid-cols-1 sm:grid-cols-3 gap-2.5">
+            {SOCIALS.map((item, idx) => (
+              <SocialButton key={item.id} item={item} delay={0.08 + idx * 0.07} />
+            ))}
+          </div>
+
+          <p className="text-xs text-white/80 text-center mt-1 inline-flex items-center justify-center gap-1.5">
+            <Copy size={13} className="text-white/90" />
+            click email to copy instantly
+          </p>
+        </div>
       </motion.div>
-
-      {/* Link cards */}
-      <div className="w-full max-w-sm flex flex-col gap-3">
-        {LINKS.map((link, i) => (
-          <LinkCard key={link.id} link={link} delay={0.08 + i * 0.1} />
-        ))}
-      </div>
-
-      {/* Subtle footer note */}
-      <motion.p
-        initial={{ opacity: 0 }}
-        animate={{ opacity: 1 }}
-        transition={{ delay: 0.5 }}
-        className="text-[10px] text-white/25 text-center"
-      >
-        Response within 24 hours ·{' '}
-        <span className="text-white/35">Open to freelance &amp; full-time</span>
-      </motion.p>
-
     </div>
   );
 }

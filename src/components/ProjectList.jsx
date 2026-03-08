@@ -88,7 +88,7 @@ function NoFeaturedState() {
           </div>
           <div>
             <p className="text-white/90 font-bold text-base mb-1">No projects featured yet</p>
-            <p className="text-white/45 text-xs leading-relaxed">
+            <p className="text-white/80 text-xs leading-relaxed">
               Add the{' '}
               <code className="bg-cyan-400/15 border border-cyan-400/25 text-cyan-300 rounded px-1.5 py-0.5 font-mono">
                 portfolio
@@ -222,7 +222,7 @@ export default function ProjectList() {
           </div>
 
           {/* Description */}
-          <p className="relative z-20 text-xs text-white/55 line-clamp-3 leading-relaxed flex-1">
+          <p className="relative z-20 text-xs text-white/85 line-clamp-3 leading-relaxed flex-1">
             {repo.description ?? 'No description provided.'}
           </p>
 
@@ -242,7 +242,7 @@ export default function ProjectList() {
               {repo.stargazers_count}
             </span>
 
-            <span className="inline-flex items-center gap-1 text-[10px] text-white/35 ml-auto">
+            <span className="inline-flex items-center gap-1 text-[10px] text-white/75 ml-auto">
               <Calendar size={10} />
               {formatDate(repo.pushed_at)}
             </span>

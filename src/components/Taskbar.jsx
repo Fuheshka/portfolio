@@ -35,14 +35,15 @@ function DockIcon({ win, isActive, onClick }) {
         onClick={onClick}
         title={win.title}
         className={[
-          'w-11 h-11 rounded-2xl flex items-center justify-center',
+          'w-9 h-9 md:w-11 md:h-11 rounded-xl md:rounded-2xl flex items-center justify-center',
           'border transition-colors duration-150',
           isActive && !win.isMinimized
             ? 'bg-white/40 border-cyan-300/70 shadow-[0_0_14px_rgba(103,232,249,0.4)]'
             : 'bg-white/20 border-white/30 hover:bg-white/35',
         ].join(' ')}
       >
-        <Icon size={22} className="text-white drop-shadow-sm" />
+        <Icon size={18} className="text-white drop-shadow-sm md:hidden" />
+        <Icon size={22} className="hidden text-white drop-shadow-sm md:block" />
       </motion.button>
 
       {/* Glowing dot indicator */}
@@ -77,8 +78,8 @@ function SysTray() {
 
   return (
     <div className="flex flex-col items-center leading-none select-none shrink-0">
-      <span className="text-[15px] font-bold text-white tabular-nums drop-shadow-sm">{time}</span>
-      <span className="text-[10px] text-white/60 mt-0.5">{date}</span>
+      <span className="text-[13px] md:text-[15px] font-bold text-white tabular-nums drop-shadow-sm">{time}</span>
+      <span className="text-[9px] md:text-[10px] text-white/85 mt-0.5">{date}</span>
     </div>
   );
 }
@@ -94,25 +95,29 @@ export default function Taskbar({ activeWindows = [], activeId = null, onWindowC
         layout: { type: 'spring', stiffness: 280, damping: 28 },
         default: { type: 'spring', stiffness: 280, damping: 28, delay: 0.1 },
       }}
-      className="absolute bottom-4 left-1/2 -translate-x-1/2 z-[9999]
-        flex items-center gap-3 px-4
-        h-14
-        rounded-2xl
+      className="absolute bottom-2 left-2 right-2 md:bottom-4 md:left-1/2 md:right-auto md:-translate-x-1/2 z-[9999]
+        flex items-center gap-2 md:gap-3 px-3 md:px-4
+        h-12 md:h-14
+        rounded-xl md:rounded-2xl
         bg-white/20 backdrop-blur-xl
         border border-white/30
         shadow-[0_8px_32px_rgba(0,0,0,0.18),inset_0_1px_0_rgba(255,255,255,0.35)]"
     >
       {/* Open window icons */}
-      <AnimatePresence mode="sync">
-        {activeWindows.map((win) => (
-          <DockIcon
-            key={win.id}
-            win={win}
-            isActive={win.id === activeId}
-            onClick={() => onWindowClick(win.id)}
-          />
-        ))}
-      </AnimatePresence>
+      <div className="flex-1 min-w-0 overflow-x-auto">
+        <div className="flex items-center gap-2 md:gap-3 w-max">
+          <AnimatePresence mode="sync">
+            {activeWindows.map((win) => (
+              <DockIcon
+                key={win.id}
+                win={win}
+                isActive={win.id === activeId}
+                onClick={() => onWindowClick(win.id)}
+              />
+            ))}
+          </AnimatePresence>
+        </div>
+      </div>
 
       {/* Divider — only when windows are open */}
       <AnimatePresence>
@@ -122,7 +127,7 @@ export default function Taskbar({ activeWindows = [], activeId = null, onWindowC
             animate={{ opacity: 1, scaleY: 1 }}
             exit={{ opacity: 0, scaleY: 0.3 }}
             transition={{ duration: 0.2 }}
-            className="w-px h-7 bg-white/25 shrink-0"
+            className="w-px h-6 md:h-7 bg-white/25 shrink-0"
           />
         )}
       </AnimatePresence>

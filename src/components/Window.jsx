@@ -1,3 +1,4 @@
+import { useEffect, useState } from 'react';
 import { useMotionValue, useDragControls } from 'framer-motion';
 import { motion } from 'framer-motion';
 import { Minimize2 } from 'lucide-react';
@@ -28,6 +29,26 @@ export default function Window({
   onFocus,
   onPositionChange,
 }) {
+  const [isMobile, setIsMobile] = useState(() => {
+    if (typeof window === 'undefined') return false;
+    return window.innerWidth < 768;
+  });
+
+  useEffect(() => {
+    const media = window.matchMedia('(max-width: 767px)');
+    const onChange = (event) => setIsMobile(event.matches);
+
+    setIsMobile(media.matches);
+
+    if (typeof media.addEventListener === 'function') {
+      media.addEventListener('change', onChange);
+      return () => media.removeEventListener('change', onChange);
+    }
+
+    media.addListener(onChange);
+    return () => media.removeListener(onChange);
+  }, []);
+
   const x = useMotionValue(position?.x ?? 100);
   const y = useMotionValue(position?.y ?? 80);
   const dragControls = useDragControls();
@@ -46,39 +67,56 @@ export default function Window({
 
   const normalStyle = {
     zIndex,
-    x,
-    y,
+    x: isMobile ? 0 : x,
+    y: isMobile ? 0 : y,
     position: 'absolute',
     top: 0,
     left: 0,
   };
 
+  const mobileStyle = {
+    position: 'fixed',
+    top: 0,
+    left: 0,
+    width: '100vw',
+    height: '100vh',
+    borderRadius: 0,
+    zIndex: Math.max(zIndex, 50),
+  };
+
   return (
     <motion.div
-      drag={!isMaximized}
+      drag={!isMobile && !isMaximized}
       dragControls={dragControls}
       dragListener={false}
       dragMomentum={false}
       dragElastic={0}
       onDragEnd={() => {
-        if (!isMaximized) onPositionChange?.({ x: x.get(), y: y.get() });
+        if (!isMobile && !isMaximized) onPositionChange?.({ x: x.get(), y: y.get() });
       }}
       onMouseDown={onFocus}
       initial={{ opacity: 0, scale: 0.92 }}
       animate={{ opacity: 1, scale: 1 }}
       exit={{ opacity: 0, scale: 0.88 }}
       transition={{ type: 'spring', stiffness: 300, damping: 28 }}
-      style={isMaximized ? maximizedStyle : normalStyle}
+      style={isMobile ? mobileStyle : (isMaximized ? maximizedStyle : normalStyle)}
       className={[
         'bg-white/30 backdrop-blur-2xl border border-white/50 shadow-2xl',
         'flex flex-col overflow-hidden select-none',
-        isMaximized ? 'rounded-none' : 'rounded-xl w-[620px] h-[440px]',
+        isMobile
+          ? 'fixed inset-0 z-50 w-full h-full rounded-none pt-10'
+          : isMaximized
+            ? 'rounded-none'
+            : 'rounded-xl w-full h-full md:w-[620px] md:h-[440px]',
       ].join(' ')}
     >
       {/* Title bar — drag handle only */}
       <div
-        onPointerDown={(e) => { if (!isMaximized) dragControls.start(e); }}
-        className="h-10 shrink-0 bg-white/20 border-b border-white/30 flex items-center justify-between px-4 cursor-grab active:cursor-grabbing"
+        onPointerDown={(e) => { if (!isMobile && !isMaximized) dragControls.start(e); }}
+        className={[
+          'h-10 shrink-0 bg-white/20 border-b border-white/30 flex items-center justify-between px-4',
+          isMobile ? 'cursor-default' : 'cursor-grab active:cursor-grabbing',
+        ].join(' ')}
       >
         {/* Mac-style traffic-light controls */}
         <div className="flex items-center gap-2">

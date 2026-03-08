@@ -3,6 +3,7 @@ import { AnimatePresence } from 'framer-motion';
 import { Folder, User, Mail } from 'lucide-react';
 import Window from './components/Window';
 import Taskbar from './components/Taskbar';
+import Wallpaper from './components/Wallpaper';
 
 const APPS = [
   { id: 'projects', label: 'Projects', icon: Folder },
@@ -118,10 +119,13 @@ export default function App() {
   }
 
   return (
-    <div className="relative h-screen w-screen overflow-hidden bg-gradient-to-br from-cyan-500 to-blue-300">
+    <div className="relative h-screen w-screen overflow-hidden">
+
+      {/* Wallpaper */}
+      <Wallpaper />
 
       {/* Desktop icons */}
-      <div className="absolute inset-0 z-0 p-6 flex flex-col gap-3">
+      <div className="absolute inset-0 z-0 p-4 md:p-6 grid grid-cols-3 sm:grid-cols-4 md:grid-cols-6 lg:grid-cols-8 gap-2 md:gap-3 content-start">
         {APPS.map((app) => {
           const Icon = app.icon;
           return (
@@ -129,12 +133,13 @@ export default function App() {
               key={app.id}
               onDoubleClick={() => openWindow(app.id)}
               onClick={() => openWindow(app.id)}
-              className="w-20 flex flex-col items-center gap-1.5 rounded-lg p-2 hover:bg-white/20 transition-colors cursor-pointer group"
+              className="w-full max-w-[98px] flex flex-col items-center gap-1.5 rounded-lg p-2 hover:bg-white/20 transition-colors cursor-pointer group touch-manipulation"
             >
-              <div className="w-11 h-11 rounded-xl bg-white/30 backdrop-blur-md border border-white/50 shadow-md flex items-center justify-center group-hover:bg-white/40 transition-colors">
-                <Icon size={20} className="text-white drop-shadow-sm" />
+              <div className="w-12 h-12 md:w-11 md:h-11 rounded-xl bg-white/30 backdrop-blur-md border border-white/50 shadow-md flex items-center justify-center group-hover:bg-white/40 transition-colors">
+                <Icon size={22} className="text-white drop-shadow-sm md:hidden" />
+                <Icon size={20} className="hidden text-white drop-shadow-sm md:block" />
               </div>
-              <span className="text-white text-[11px] font-medium drop-shadow-md text-center leading-tight">
+              <span className="text-white text-[11px] md:text-[11px] font-medium drop-shadow-md text-center leading-tight">
                 {app.label}
               </span>
             </div>
