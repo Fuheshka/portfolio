@@ -2,16 +2,19 @@ import { useEffect, useState } from 'react';
 import { useMotionValue, useDragControls } from 'framer-motion';
 import { motion } from 'framer-motion';
 import { Minimize2 } from 'lucide-react';
+import Personalization from './Personalization';
 import ProjectList from './ProjectList';
 import About from './About';
 import Contact from './Contact';
+import { playCloseSound, playMinimizeSound, playOpenSound } from '../utils/audio';
 
-function WindowContent({ type }) {
+function WindowContent({ type, customizationProps }) {
   switch (type) {
-    case 'projects': return <ProjectList />;
-    case 'about':    return <About />;
-    case 'contact':  return <Contact />;
-    default:         return <ProjectList />;
+    case 'projects':        return <ProjectList />;
+    case 'about':           return <About />;
+    case 'contact':         return <Contact />;
+    case 'personalization': return <Personalization {...customizationProps} />;
+    default:                return <ProjectList />;
   }
 }
 
@@ -28,6 +31,7 @@ export default function Window({
   onMaximize,
   onFocus,
   onPositionChange,
+  customizationProps,
 }) {
   const [isMobile, setIsMobile] = useState(() => window.innerWidth < 768);
 
@@ -92,7 +96,7 @@ export default function Window({
           {/* Close — red */}
           <button
             onMouseDown={(e) => e.stopPropagation()}
-            onClick={(e) => { e.stopPropagation(); onClose(id); }}
+            onClick={(e) => { e.stopPropagation(); playCloseSound(); onClose(id); }}
             title="Close"
             className="group w-3.5 h-3.5 rounded-full bg-gradient-to-b from-red-400 via-red-500 to-red-600
               border border-red-700/50 hover:brightness-110 active:brightness-90 transition-all flex items-center justify-center
@@ -103,7 +107,7 @@ export default function Window({
           {/* Minimize — yellow */}
           <button
             onMouseDown={(e) => e.stopPropagation()}
-            onClick={(e) => { e.stopPropagation(); onMinimize(id); }}
+            onClick={(e) => { e.stopPropagation(); playMinimizeSound(); onMinimize(id); }}
             title="Minimize"
             className="group w-3.5 h-3.5 rounded-full bg-gradient-to-b from-yellow-300 via-yellow-400 to-yellow-600
               border border-yellow-700/50 hover:brightness-110 active:brightness-90 transition-all flex items-center justify-center
@@ -114,7 +118,7 @@ export default function Window({
           {/* Maximize — green */}
           <button
             onMouseDown={(e) => e.stopPropagation()}
-            onClick={(e) => { e.stopPropagation(); onMaximize(id); }}
+            onClick={(e) => { e.stopPropagation(); playOpenSound(); onMaximize(id); }}
             title={isMaximized ? 'Restore' : 'Maximize'}
             className="group w-3.5 h-3.5 rounded-full bg-gradient-to-b from-green-300 via-green-500 to-green-600
               border border-green-700/50 hover:brightness-110 active:brightness-90 transition-all flex items-center justify-center
@@ -135,7 +139,7 @@ export default function Window({
 
       {/* Content */}
       <div className="flex-1 overflow-y-auto bg-black/10 text-white relative z-20">
-        <WindowContent type={type} />
+        <WindowContent type={type} customizationProps={customizationProps} />
       </div>
     </motion.div>
   );

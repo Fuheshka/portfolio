@@ -1,14 +1,16 @@
 import { useState, useEffect } from 'react';
 import { AnimatePresence } from 'framer-motion';
-import { Folder, User, Mail } from 'lucide-react';
+import { Folder, User, Mail, Sliders } from 'lucide-react';
 import Window from './components/Window';
 import Taskbar from './components/Taskbar';
 import Wallpaper from './components/Wallpaper';
+import { playBootSound, playOpenSound, playMinimizeSound, playClickSound, setSoundEnabled } from './utils/audio';
 
 const APPS = [
   { id: 'projects', label: 'Projects', icon: Folder },
   { id: 'about',    label: 'About Me', icon: User   },
   { id: 'contact',  label: 'Contact',  icon: Mail   },
+  { id: 'personalization', label: 'Personalization', icon: Sliders },
 ];
 
 const CASCADE_OFFSET = 30;
@@ -23,15 +25,50 @@ export default function App() {
   const [windows, setWindows]       = useState([]);
   const [activeId, setActiveId]     = useState(null);
 
+  const [wallpaper, setWallpaper] = useState(() => localStorage.getItem('aero_wallpaper') || 'default');
+  const [blurAmount, setBlurAmount] = useState(() => {
+    const saved = localStorage.getItem('aero_blur');
+    return saved !== null ? parseInt(saved, 10) : 8;
+  });
+  const [soundEnabled, setSoundEnabledState] = useState(() => {
+    const saved = localStorage.getItem('aero_sound');
+    return saved !== null ? saved === 'true' : true;
+  });
+
+  const [bootProgress, setBootProgress] = useState(0);
+
   useEffect(() => {
-    const t = setTimeout(() => setIsBooting(false), 3000);
-    return () => clearTimeout(t);
-  }, []);
+    localStorage.setItem('aero_wallpaper', wallpaper);
+  }, [wallpaper]);
+
+  useEffect(() => {
+    localStorage.setItem('aero_blur', blurAmount.toString());
+  }, [blurAmount]);
+
+  useEffect(() => {
+    localStorage.setItem('aero_sound', soundEnabled.toString());
+    setSoundEnabled(soundEnabled);
+  }, [soundEnabled]);
+
+  useEffect(() => {
+    if (bootProgress < 100) {
+      const t = setTimeout(() => {
+        setBootProgress((prev) => Math.min(prev + 5, 100));
+      }, 80);
+      return () => clearTimeout(t);
+    }
+  }, [bootProgress]);
+
+  function handleLogin() {
+    playBootSound();
+    setIsBooting(false);
+  }
 
   // ── Helpers ────────────────────────────────────────────────────────────
   const openCount = windows.length;
 
   function openWindow(id) {
+    playOpenSound();
     const existing = windows.find((w) => w.id === id);
     if (existing) {
       // Restore if minimized, always bring to front
@@ -65,6 +102,7 @@ export default function App() {
   }
 
   function minimizeWindow(id) {
+    playMinimizeSound();
     setWindows((prev) =>
       prev.map((w) => (w.id === id ? { ...w, isMinimized: true } : w))
     );
@@ -81,6 +119,7 @@ export default function App() {
   }
 
   function focusWindow(id) {
+    playClickSound();
     setWindows((prev) =>
       prev.map((w) => (w.id === id ? { ...w, zIndex: nextZ() } : w))
     );
@@ -107,24 +146,53 @@ export default function App() {
     }
   }
 
-  // ── Boot screen ────────────────────────────────────────────────────────
+  // ── Boot / Welcome screen ───────────────────────────────────────────────
   if (isBooting) {
     return (
-      <div className="flex h-screen w-screen flex-col items-center justify-center bg-gradient-to-tr from-cyan-950 via-slate-950 to-blue-950">
-        <div className="flex flex-col items-center gap-6 select-none animate-pulse">
-          {/* Glowing Orb Logo */}
-          <div className="w-20 h-20 rounded-full bg-gradient-to-tr from-cyan-400 via-teal-300 to-emerald-400 p-0.5 shadow-[0_0_40px_8px_rgba(34,211,238,0.4),inset_0_1px_2px_rgba(255,255,255,0.6)] relative flex items-center justify-center">
-            <span className="text-3xl filter drop-shadow-[0_1.5px_2px_rgba(0,0,0,0.25)]">🍃</span>
-            <div className="absolute inset-0 rounded-full bg-gradient-to-b from-white/35 to-transparent pointer-events-none" />
-          </div>
-          
-          <div className="text-cyan-200/80 text-[13px] tracking-[0.18em] uppercase font-bold text-center font-sans">
-            Fuheshka OS
-          </div>
+      <div className="relative h-screen w-screen flex items-center justify-center overflow-hidden">
+        {/* Blurred dynamic wallpaper matching user preference */}
+        <Wallpaper currentWallpaper={wallpaper} blurAmount={24} />
 
-          {/* Glossy Progress Bar Container */}
-          <div className="w-48 h-1.5 rounded-full bg-white/10 overflow-hidden border border-white/15 relative shadow-[inset_0_1px_1px_rgba(0,0,0,0.2)]">
-            <div className="h-full bg-gradient-to-r from-cyan-400 via-teal-300 to-emerald-400 rounded-full animate-pulse" style={{ width: '65%' }} />
+        <div className="z-10 flex flex-col items-center gap-6 select-none">
+          {/* Glassmorphic User Logon Card */}
+          <div className="bg-white/15 border border-white/35 rounded-3xl backdrop-blur-2xl p-8 shadow-2xl flex flex-col items-center gap-5 relative overflow-hidden w-76 text-center">
+            {/* Glossy top overlay reflection */}
+            <div className="absolute inset-0 pointer-events-none bg-gradient-to-tr from-transparent via-white/5 to-white/10 z-20" />
+            
+            {/* Glowing Orb Logo / Avatar */}
+            <div className="w-20 h-20 rounded-full bg-gradient-to-tr from-cyan-300 via-teal-200 to-emerald-400 p-0.5 border border-white/60 shadow-[0_4px_15px_rgba(34,211,238,0.35)] flex items-center justify-center text-3xl relative overflow-hidden">
+              <span className="filter drop-shadow-[0_1.5px_2px_rgba(0,0,0,0.25)]">🎨</span>
+              <div className="absolute inset-0 rounded-full bg-gradient-to-b from-white/35 to-transparent pointer-events-none" />
+            </div>
+
+            <div>
+              <h2 className="text-white font-extrabold text-lg tracking-wide drop-shadow-[0_1px_2px_rgba(0,0,0,0.3)]">Fuheshka</h2>
+              <p className="text-[11px] text-cyan-200/90 font-bold uppercase tracking-wider mt-0.5">Technical Artist</p>
+            </div>
+
+            {bootProgress < 100 ? (
+              /* Loading phase progress bar */
+              <div className="flex flex-col items-center gap-2.5 w-full mt-2">
+                <div className="w-48 h-1.5 rounded-full bg-white/10 overflow-hidden border border-white/15 relative shadow-[inset_0_1px_1px_rgba(0,0,0,0.2)]">
+                  <div 
+                    className="h-full bg-gradient-to-r from-cyan-400 via-teal-300 to-emerald-400 rounded-full transition-all duration-75"
+                    style={{ width: `${bootProgress}%` }}
+                  />
+                </div>
+                <div className="text-[9px] text-cyan-200/50 uppercase tracking-[0.2em] font-bold font-mono">
+                  Loading {bootProgress}%
+                </div>
+              </div>
+            ) : (
+              /* Logon Phase Button (Unlocks audio context on click) */
+              <button
+                onClick={handleLogin}
+                className="w-full py-2.5 mt-2 rounded-xl bg-gradient-to-b from-cyan-400/40 to-blue-500/25 hover:from-cyan-400/50 hover:to-blue-500/35 border border-cyan-300/80 text-white font-extrabold text-xs tracking-widest uppercase shadow-[0_4px_15px_rgba(34,211,238,0.2),inset_0_1px_1px_rgba(255,255,255,0.45)] cursor-pointer hover:scale-102 active:scale-98 transition-all duration-200 relative overflow-hidden"
+              >
+                <div className="absolute inset-x-0 top-0 h-1/2 bg-gradient-to-b from-white/20 to-transparent pointer-events-none" />
+                Log In
+              </button>
+            )}
           </div>
         </div>
       </div>
@@ -135,7 +203,7 @@ export default function App() {
     <div className="relative h-screen w-screen overflow-hidden">
 
       {/* Wallpaper */}
-      <Wallpaper />
+      <Wallpaper currentWallpaper={wallpaper} blurAmount={blurAmount} />
 
       {/* Desktop icons */}
       <div className="absolute inset-0 z-0 p-4 md:p-6 grid grid-cols-3 sm:grid-cols-4 md:grid-cols-6 lg:grid-cols-8 gap-2 md:gap-3 content-start">
@@ -178,6 +246,14 @@ export default function App() {
             onMaximize={maximizeWindow}
             onFocus={() => focusWindow(win.id)}
             onPositionChange={(pos) => updatePosition(win.id, pos)}
+            customizationProps={{
+              currentWallpaper: wallpaper,
+              setWallpaper,
+              blurAmount,
+              setBlurAmount,
+              soundEnabled,
+              setSoundEnabled: setSoundEnabledState,
+            }}
           />
         ))}
       </AnimatePresence>
