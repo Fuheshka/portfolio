@@ -10,21 +10,21 @@ const SOCIALS = [
     label: 'GitHub',
     href: 'https://github.com/Fuheshka',
     icon: Github,
-    style: 'bg-slate-500/25 border-slate-300/40 hover:bg-slate-400/35 hover:shadow-slate-300/30',
+    style: 'bg-gradient-to-b from-slate-500/25 to-slate-600/10 border-slate-350/30 hover:border-slate-300/60 hover:shadow-[0_8px_20px_rgba(255,255,255,0.06),inset_0_1px_1.5px_rgba(255,255,255,0.25)]',
   },
   {
     id: 'telegram',
     label: 'Telegram',
     href: 'https://t.me/fuheshka',
     icon: Send,
-    style: 'bg-sky-500/25 border-sky-300/40 hover:bg-sky-400/35 hover:shadow-sky-300/30',
+    style: 'bg-gradient-to-b from-sky-500/25 to-sky-600/10 border-sky-350/30 hover:border-sky-300/60 hover:shadow-[0_8px_20px_rgba(34,211,238,0.18),inset_0_1px_1.5px_rgba(255,255,255,0.25)]',
   },
   {
     id: 'discord',
     label: 'Discord',
     href: 'https://discordapp.com/users/316858178073526273',
     icon: MessageCircle,
-    style: 'bg-indigo-500/25 border-indigo-300/40 hover:bg-indigo-400/35 hover:shadow-indigo-300/30',
+    style: 'bg-gradient-to-b from-indigo-500/25 to-indigo-600/10 border-indigo-350/30 hover:border-indigo-300/60 hover:shadow-[0_8px_20px_rgba(99,102,241,0.18),inset_0_1px_1.5px_rgba(255,255,255,0.25)]',
   },
 ];
 
@@ -38,17 +38,19 @@ function SocialButton({ item, delay }) {
       initial={{ opacity: 0, y: 16, scale: 0.96 }}
       animate={{ opacity: 1, y: 0, scale: 1 }}
       transition={{ type: 'spring', stiffness: 280, damping: 22, delay }}
-      whileHover={{ scale: 1.03, y: -1 }}
+      whileHover={{ scale: 1.03, y: -2 }}
       whileTap={{ scale: 0.97 }}
       className={[
-        'group w-full h-12 rounded-xl border backdrop-blur-md',
+        'group w-full h-12 rounded-xl border backdrop-blur-md relative overflow-hidden',
         'flex items-center justify-center gap-2',
-        'text-white font-semibold text-sm',
-        'shadow-lg transition-all duration-250',
+        'text-white font-bold text-sm',
+        'shadow-md transition-all duration-250',
         item.style,
       ].join(' ')}
     >
-      <Icon size={18} className="text-white" />
+      {/* Icon gloss highlight */}
+      <div className="absolute inset-x-0 top-0 h-1/2 bg-gradient-to-b from-white/15 to-transparent pointer-events-none" />
+      <Icon size={18} className="text-white drop-shadow-[0_1px_1.5px_rgba(0,0,0,0.2)]" />
       {item.label}
     </motion.a>
   );
@@ -68,32 +70,37 @@ export default function Contact() {
   }
 
   return (
-    <div className="min-h-full flex items-center justify-center p-4">
+    <div className="min-h-full flex items-center justify-center p-6 font-sans">
       <motion.div
         initial={{ opacity: 0, y: 18, scale: 0.98 }}
         animate={{ opacity: 1, y: 0, scale: 1 }}
         transition={{ type: 'spring', stiffness: 260, damping: 24 }}
         className="relative w-full max-w-md rounded-2xl overflow-hidden
-          border border-white/40 bg-white/15 backdrop-blur-md shadow-xl p-6"
+          border-t border-l border-white/55 border-r border-b border-white/30
+          bg-gradient-to-b from-white/25 via-white/10 to-white/5 backdrop-blur-xl
+          shadow-[0_20px_50px_rgba(0,100,200,0.12),inset_0_1px_1px_rgba(255,255,255,0.35)] p-6"
       >
-        <div className="absolute inset-x-0 top-0 h-1/2 bg-gradient-to-b from-white/20 to-transparent pointer-events-none" />
+        {/* Card gloss reflection overlay */}
+        <div className="absolute inset-x-0 top-0 h-1/2 bg-gradient-to-b from-white/15 to-transparent pointer-events-none rounded-t-2xl z-10" />
 
-        <div className="relative z-10 text-center mb-5">
-          <h2 className="text-2xl font-bold text-white drop-shadow-sm">Let&apos;s Connect</h2>
-          <p className="text-sm text-white/85 mt-1">Open for freelance and collaboration</p>
+        <div className="relative z-10 text-center mb-5 select-none">
+          <h2 className="text-2xl font-bold text-white drop-shadow-[0_1.5px_2.5px_rgba(0,0,0,0.3)]">Let&apos;s Connect</h2>
+          <p className="text-sm text-cyan-200 drop-shadow-[0_0.5px_1px_rgba(0,0,0,0.15)] font-semibold mt-1">Open for freelance and collaboration</p>
         </div>
 
         <div className="relative z-10 flex flex-col gap-3">
           <motion.button
             onClick={copyEmail}
-            whileHover={{ scale: 1.02, y: -1 }}
-            whileTap={{ scale: 0.98 }}
-            className="relative w-full h-14 rounded-xl border border-cyan-300/40 bg-cyan-500/30
-              hover:bg-cyan-400/40 shadow-lg hover:shadow-cyan-300/35
+            whileHover={{ scale: 1.02, y: -2 }}
+            whileTap={{ scale: 0.97 }}
+            className="relative w-full h-14 rounded-xl border border-cyan-300/65 bg-gradient-to-b from-cyan-400/40 to-blue-500/25
+              hover:from-cyan-400/50 hover:to-blue-500/35 shadow-[0_10px_25px_rgba(0,180,255,0.18),inset_0_1px_1px_rgba(255,255,255,0.45)]
               text-white font-bold text-base transition-all duration-250
-              flex items-center justify-center gap-2"
+              flex items-center justify-center gap-2 overflow-hidden"
           >
-            {copied ? <Check size={20} /> : <Mail size={20} />}
+            {/* Button gloss highlight */}
+            <div className="absolute inset-x-0 top-0 h-1/2 bg-gradient-to-b from-white/20 to-transparent pointer-events-none" />
+            {copied ? <Check size={20} className="drop-shadow-[0_1px_1px_rgba(0,0,0,0.2)]" /> : <Mail size={20} className="drop-shadow-[0_1px_1px_rgba(0,0,0,0.2)]" />}
             {copied ? 'Copied!' : EMAIL}
 
             <AnimatePresence>
@@ -104,8 +111,8 @@ export default function Contact() {
                   exit={{ opacity: 0, y: 6, scale: 0.95 }}
                   transition={{ duration: 0.2 }}
                   className="absolute -top-9 left-1/2 -translate-x-1/2
-                    text-[11px] font-semibold text-white bg-black/45
-                    border border-white/25 rounded-md px-2 py-1"
+                    text-[11px] font-semibold text-white bg-black/60 backdrop-blur-md
+                    border border-white/25 rounded-md px-2 py-1 shadow-lg"
                 >
                   copied!
                 </motion.span>
@@ -119,8 +126,8 @@ export default function Contact() {
             ))}
           </div>
 
-          <p className="text-xs text-white/80 text-center mt-1 inline-flex items-center justify-center gap-1.5">
-            <Copy size={13} className="text-white/90" />
+          <p className="text-xs text-white/70 text-center mt-1 inline-flex items-center justify-center gap-1.5 select-none drop-shadow-[0_0.5px_1px_rgba(0,0,0,0.1)]">
+            <Copy size={13} className="text-white/80" />
             click email to copy instantly
           </p>
         </div>

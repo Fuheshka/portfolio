@@ -110,9 +110,22 @@ export default function App() {
   // ── Boot screen ────────────────────────────────────────────────────────
   if (isBooting) {
     return (
-      <div className="flex h-screen w-screen items-center justify-center bg-black">
-        <div className="text-white text-2xl font-semibold animate-pulse">
-          Starting System...
+      <div className="flex h-screen w-screen flex-col items-center justify-center bg-gradient-to-tr from-cyan-950 via-slate-950 to-blue-950">
+        <div className="flex flex-col items-center gap-6 select-none animate-pulse">
+          {/* Glowing Orb Logo */}
+          <div className="w-20 h-20 rounded-full bg-gradient-to-tr from-cyan-400 via-teal-300 to-emerald-400 p-0.5 shadow-[0_0_40px_8px_rgba(34,211,238,0.4),inset_0_1px_2px_rgba(255,255,255,0.6)] relative flex items-center justify-center">
+            <span className="text-3xl filter drop-shadow-[0_1.5px_2px_rgba(0,0,0,0.25)]">🍃</span>
+            <div className="absolute inset-0 rounded-full bg-gradient-to-b from-white/35 to-transparent pointer-events-none" />
+          </div>
+          
+          <div className="text-cyan-200/80 text-[13px] tracking-[0.18em] uppercase font-bold text-center font-sans">
+            Fuheshka OS
+          </div>
+
+          {/* Glossy Progress Bar Container */}
+          <div className="w-48 h-1.5 rounded-full bg-white/10 overflow-hidden border border-white/15 relative shadow-[inset_0_1px_1px_rgba(0,0,0,0.2)]">
+            <div className="h-full bg-gradient-to-r from-cyan-400 via-teal-300 to-emerald-400 rounded-full animate-pulse" style={{ width: '65%' }} />
+          </div>
         </div>
       </div>
     );
@@ -133,13 +146,14 @@ export default function App() {
               key={app.id}
               onDoubleClick={() => openWindow(app.id)}
               onClick={() => openWindow(app.id)}
-              className="w-full max-w-[98px] flex flex-col items-center gap-1.5 rounded-lg p-2 hover:bg-white/20 transition-colors cursor-pointer group touch-manipulation"
+              className="w-full max-w-[98px] flex flex-col items-center gap-2 rounded-2xl p-2.5 hover:bg-white/20 hover:shadow-[0_8px_20px_rgba(255,255,255,0.08),inset_0_1px_1px_rgba(255,255,255,0.2)] border border-transparent hover:border-white/25 transition-all duration-300 cursor-pointer group touch-manipulation"
             >
-              <div className="w-12 h-12 md:w-11 md:h-11 rounded-xl bg-white/30 backdrop-blur-md border border-white/50 shadow-md flex items-center justify-center group-hover:bg-white/40 transition-colors">
-                <Icon size={22} className="text-white drop-shadow-sm md:hidden" />
-                <Icon size={20} className="hidden text-white drop-shadow-sm md:block" />
+              <div className="w-13 h-13 md:w-12 md:h-12 rounded-2xl bg-gradient-to-b from-white/30 to-white/10 backdrop-blur-xl border border-white/50 shadow-lg flex items-center justify-center group-hover:from-white/45 group-hover:to-white/20 group-hover:border-cyan-300/60 group-hover:shadow-[0_0_15px_rgba(103,232,249,0.35)] transition-all duration-300 relative overflow-hidden">
+                {/* Icon glossy reflection overlay */}
+                <div className="absolute inset-x-0 top-0 h-1/2 bg-gradient-to-b from-white/25 to-transparent pointer-events-none" />
+                <Icon className="text-white drop-shadow-[0_1.5px_2px_rgba(0,0,0,0.25)] w-[24px] h-[24px] md:w-[22px] md:h-[22px] group-hover:scale-110 transition-transform duration-300" />
               </div>
-              <span className="text-white text-[11px] md:text-[11px] font-medium drop-shadow-md text-center leading-tight">
+              <span className="text-white text-[11px] md:text-[12px] font-bold drop-shadow-[0_2px_4px_rgba(0,0,0,0.7)] text-center leading-tight tracking-wide font-sans">
                 {app.label}
               </span>
             </div>
