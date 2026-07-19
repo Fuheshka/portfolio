@@ -36,7 +36,7 @@ export default function Personalization({
     <div className="p-5 pb-8 flex flex-col gap-6 font-sans text-white/90 max-w-full overflow-x-hidden">
       {/* Wallpaper Selection */}
       <div>
-        <h3 className="text-[11px] font-bold uppercase tracking-widest text-cyan-200 mb-3 flex items-center gap-1.5 drop-shadow-[0_0.5px_1px_rgba(0,0,0,0.2)]">
+        <h3 className="text-sm font-bold text-cyan-200 mb-3 flex items-center gap-1.5 font-display drop-shadow-[0_0.5px_1px_rgba(0,0,0,0.2)]">
           <Image size={12} className="text-cyan-300" />
           Desktop Background
         </h3>
@@ -48,9 +48,9 @@ export default function Personalization({
                 key={wp.id}
                 onClick={() => handleWallpaperClick(wp.id)}
                 className={[
-                  'group relative flex flex-col rounded-xl overflow-hidden border text-left cursor-pointer transition-all duration-200',
+                  'group relative flex flex-col rounded-xl overflow-hidden border text-left cursor-pointer transition-[transform,border-color,box-shadow] duration-200 ease-out active:scale-[0.97]',
                   isSelected
-                    ? 'border-cyan-300 shadow-[0_0_12px_rgba(34,211,238,0.45),inset_0_1px_1px_rgba(255,255,255,0.4)] scale-[1.02]'
+                    ? 'border-cyan-300 shadow-[0_0_12px_rgba(34,211,238,0.45),inset_0_1px_1px_rgba(255,255,255,0.4)] scale-[1.01]'
                     : 'border-white/20 hover:border-white/45 bg-black/10 hover:bg-white/5 hover:scale-[1.01]',
                 ].join(' ')}
               >
@@ -80,7 +80,7 @@ export default function Personalization({
       <div className="bg-white/10 p-4 rounded-xl border border-white/20 shadow-md backdrop-blur-md relative overflow-hidden">
         <div className="absolute inset-x-0 top-0 h-1/2 bg-gradient-to-b from-white/10 to-transparent pointer-events-none" />
         
-        <h3 className="text-[11px] font-bold uppercase tracking-widest text-cyan-200 mb-3 flex items-center gap-1.5 drop-shadow-[0_0.5px_1px_rgba(0,0,0,0.2)]">
+        <h3 className="text-sm font-bold text-cyan-200 mb-3 flex items-center gap-1.5 font-display drop-shadow-[0_0.5px_1px_rgba(0,0,0,0.2)]">
           <Eye size={12} className="text-cyan-300" />
           Wallpaper Blur
         </h3>
@@ -107,7 +107,7 @@ export default function Personalization({
         <button
           onClick={toggleSound}
           className={[
-            'w-full p-4 rounded-xl border text-left cursor-pointer transition-all duration-200 relative overflow-hidden flex items-center justify-between',
+            'w-full p-4 rounded-xl border text-left cursor-pointer transition-[transform,border-color,box-shadow] duration-150 ease-out active:scale-[0.98] relative overflow-hidden flex items-center justify-between',
             'bg-gradient-to-b from-white/15 to-white/5 backdrop-blur-md',
             soundEnabled
               ? 'border-cyan-300/60 shadow-[0_4px_12px_rgba(0,180,255,0.12),inset_0_1px_1px_rgba(255,255,255,0.2)]'

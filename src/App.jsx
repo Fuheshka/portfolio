@@ -1,8 +1,9 @@
 import { useState, useEffect } from 'react';
-import { AnimatePresence } from 'framer-motion';
-import { Folder, User, Mail, Sliders } from 'lucide-react';
+import { AnimatePresence, motion } from 'framer-motion';
+import { Folder, User, Mail, Sliders, Power } from 'lucide-react';
 import Window from './components/Window';
 import Taskbar from './components/Taskbar';
+import MenuBar from './components/MenuBar';
 import Wallpaper from './components/Wallpaper';
 import { playBootSound, playOpenSound, playMinimizeSound, playClickSound, setSoundEnabled } from './utils/audio';
 
@@ -22,6 +23,7 @@ function nextZ() { return ++zCounter; }
 
 export default function App() {
   const [isBooting, setIsBooting]   = useState(true);
+  const [isShutDown, setIsShutDown] = useState(false);
   const [windows, setWindows]       = useState([]);
   const [activeId, setActiveId]     = useState(null);
 
@@ -91,6 +93,7 @@ export default function App() {
       isMaximized: false,
       zIndex:      nextZ(),
       position:    { x: BASE_X + count * CASCADE_OFFSET, y: BASE_Y + count * CASCADE_OFFSET },
+      size:        { width: 620, height: 440 },
     };
     setWindows((prev) => [...prev, newWin]);
     setActiveId(id);
@@ -129,6 +132,12 @@ export default function App() {
   function updatePosition(id, pos) {
     setWindows((prev) =>
       prev.map((w) => (w.id === id ? { ...w, position: pos } : w))
+    );
+  }
+
+  function updateSize(id, size) {
+    setWindows((prev) =>
+      prev.map((w) => (w.id === id ? { ...w, size } : w))
     );
   }
 
@@ -199,32 +208,76 @@ export default function App() {
     );
   }
 
+  // System Shutdown state
+  if (isShutDown) {
+    return (
+      <div className="fixed inset-0 w-screen h-screen bg-slate-950 flex flex-col items-center justify-center z-[100000] font-sans">
+        <motion.button
+          onClick={() => {
+            setIsShutDown(false);
+            playBootSound();
+          }}
+          whileHover={{ scale: 1.1 }}
+          whileTap={{ scale: 0.9 }}
+          className="w-20 h-20 rounded-full bg-gradient-to-b from-red-500/20 to-red-700/40 border-2 border-red-500/80 hover:border-red-400 hover:shadow-[0_0_30px_rgba(239,68,68,0.5)] flex items-center justify-center cursor-pointer shadow-lg transition-all duration-300"
+          title="Power On"
+        >
+          <Power size={32} className="text-red-400" />
+        </motion.button>
+        <span className="text-white/60 text-xs font-bold uppercase tracking-widest mt-4 font-display">
+          System Offline · Click to Power On
+        </span>
+      </div>
+    );
+  }
+
+  const activeWindow = windows.find((w) => w.id === activeId);
+  const activeTitle = activeWindow ? activeWindow.title : 'Finder';
+
   return (
     <div className="relative h-screen w-screen overflow-hidden">
+
+      {/* Top Menu Bar */}
+      <MenuBar
+        activeTitle={activeTitle}
+        soundEnabled={soundEnabled}
+        setSoundEnabled={setSoundEnabledState}
+        onOpenApp={openWindow}
+        onRestart={() => {
+          setWindows([]);
+          setActiveId(null);
+          setBootProgress(0);
+          setIsBooting(true);
+        }}
+        onShutDown={() => setIsShutDown(true)}
+      />
 
       {/* Wallpaper */}
       <Wallpaper currentWallpaper={wallpaper} blurAmount={blurAmount} />
 
-      {/* Desktop icons */}
-      <div className="absolute inset-0 z-0 p-4 md:p-6 grid grid-cols-3 sm:grid-cols-4 md:grid-cols-6 lg:grid-cols-8 gap-2 md:gap-3 content-start">
+      {/* Desktop icons (shifted down to not overlap with top Menu Bar) */}
+      <div className="absolute inset-0 z-0 p-4 pt-10 md:p-6 md:pt-12 grid grid-cols-3 sm:grid-cols-4 md:grid-cols-6 lg:grid-cols-8 gap-2 md:gap-3 content-start">
         {APPS.map((app) => {
           const Icon = app.icon;
           return (
-            <div
+            <motion.div
               key={app.id}
               onDoubleClick={() => openWindow(app.id)}
               onClick={() => openWindow(app.id)}
-              className="w-full max-w-[98px] flex flex-col items-center gap-2 rounded-2xl p-2.5 hover:bg-white/20 hover:shadow-[0_8px_20px_rgba(255,255,255,0.08),inset_0_1px_1px_rgba(255,255,255,0.2)] border border-transparent hover:border-white/25 transition-all duration-300 cursor-pointer group touch-manipulation"
+              whileHover={{ scale: 1.04, y: -2 }}
+              whileTap={{ scale: 0.97 }}
+              transition={{ type: 'spring', stiffness: 500, damping: 22 }}
+              className="w-full max-w-[98px] flex flex-col items-center gap-2 rounded-2xl p-2.5 hover:bg-white/20 hover:shadow-[0_8px_20px_rgba(255,255,255,0.08),inset_0_1px_1px_rgba(255,255,255,0.2)] border border-transparent hover:border-white/25 cursor-pointer group touch-manipulation"
             >
               <div className="w-13 h-13 md:w-12 md:h-12 rounded-2xl bg-gradient-to-b from-white/30 to-white/10 backdrop-blur-xl border border-white/50 shadow-lg flex items-center justify-center group-hover:from-white/45 group-hover:to-white/20 group-hover:border-cyan-300/60 group-hover:shadow-[0_0_15px_rgba(103,232,249,0.35)] transition-all duration-300 relative overflow-hidden">
                 {/* Icon glossy reflection overlay */}
                 <div className="absolute inset-x-0 top-0 h-1/2 bg-gradient-to-b from-white/25 to-transparent pointer-events-none" />
                 <Icon className="text-white drop-shadow-[0_1.5px_2px_rgba(0,0,0,0.25)] w-[24px] h-[24px] md:w-[22px] md:h-[22px] group-hover:scale-110 transition-transform duration-300" />
               </div>
-              <span className="text-white text-[11px] md:text-[12px] font-bold drop-shadow-[0_2px_4px_rgba(0,0,0,0.7)] text-center leading-tight tracking-wide font-sans">
+              <span className="text-white text-[11px] md:text-[12px] font-bold drop-shadow-[0_2px_4px_rgba(0,0,0,0.7)] text-center leading-tight tracking-wide font-display">
                 {app.label}
               </span>
-            </div>
+            </motion.div>
           );
         })}
       </div>
@@ -241,11 +294,13 @@ export default function App() {
             isMinimized={win.isMinimized}
             isMaximized={win.isMaximized}
             position={win.position}
+            size={win.size}
             onClose={closeWindow}
             onMinimize={minimizeWindow}
             onMaximize={maximizeWindow}
             onFocus={() => focusWindow(win.id)}
             onPositionChange={(pos) => updatePosition(win.id, pos)}
+            onSizeChange={(size) => updateSize(win.id, size)}
             customizationProps={{
               currentWallpaper: wallpaper,
               setWallpaper,
@@ -260,6 +315,7 @@ export default function App() {
 
       {/* Taskbar */}
       <Taskbar
+        apps={APPS}
         activeWindows={windows}
         activeId={activeId}
         onWindowClick={handleTaskbarClick}

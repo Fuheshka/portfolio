@@ -64,7 +64,7 @@ export default function About() {
 
       {/* ── Bio ─────────────────────────────────────────────────────────── */}
       <div className="mb-1">
-        <h3 className="text-[11px] font-bold uppercase tracking-widest text-cyan-200 mb-2 drop-shadow-[0_0.5px_1px_rgba(0,0,0,0.2)]">
+        <h3 className="text-sm font-bold text-cyan-200 mb-2 font-display drop-shadow-[0_0.5px_1px_rgba(0,0,0,0.2)]">
           About
         </h3>
         <div className="space-y-4 text-white/80 leading-relaxed text-sm">
@@ -97,7 +97,7 @@ export default function About() {
 
       {/* ── Toolbox ─────────────────────────────────────────────────────── */}
       <div>
-        <h3 className="text-[11px] font-bold uppercase tracking-widest text-cyan-200 mb-3 drop-shadow-[0_0.5px_1px_rgba(0,0,0,0.2)]">
+        <h3 className="text-sm font-bold text-cyan-200 mb-3 font-display drop-shadow-[0_0.5px_1px_rgba(0,0,0,0.2)]">
           Toolbox
         </h3>
         <div className="flex flex-col gap-3">

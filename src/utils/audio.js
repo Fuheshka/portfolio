@@ -72,11 +72,12 @@ function playGlassChime({
     osc.type = 'sine';
     osc.frequency.setValueAtTime(frequency * ot.ratio, time);
 
-    // Envelope with quick attack and smooth exponential decay
+    // Envelope with quick 5ms attack and guaranteed longer decay to prevent RangeError
+    const attackTime = 0.005;
+    const decayDuration = Math.max(duration * ot.decayMult, attackTime + 0.005);
+
     gainNode.gain.setValueAtTime(0, time);
-    gainNode.gain.linearRampToValueAtTime(volume * ot.amp, time + 0.008);
-    
-    const decayDuration = duration * ot.decayMult;
+    gainNode.gain.linearRampToValueAtTime(volume * ot.amp, time + attackTime);
     gainNode.gain.exponentialRampToValueAtTime(0.0001, time + decayDuration);
 
     osc.connect(gainNode);

@@ -9,12 +9,12 @@ const containerVariants = {
 };
 
 const cardVariants = {
-  hidden:  { opacity: 0, y: 20, scale: 0.97 },
+  hidden:  { opacity: 0, y: 12, scale: 0.98 },
   visible: {
     opacity: 1,
     y: 0,
     scale: 1,
-    transition: { type: 'spring', stiffness: 260, damping: 22 },
+    transition: { duration: 0.3, ease: 'easeOut' },
   },
 };
 
@@ -27,18 +27,19 @@ export default function ProjectList() {
       initial="hidden"
       animate="visible"
     >
-      {projects.map((project) => (
+      {projects.map((project, index) => (
         <motion.div
           key={project.id}
           variants={cardVariants}
-          whileHover={{ scale: 1.025 }}
+          whileHover={{ scale: 1.01, y: -2 }}
           className={[
             'group relative flex flex-col gap-4 rounded-2xl overflow-hidden',
             'border-t border-l border-white/55 border-r border-b border-white/30',
             'bg-gradient-to-b from-white/25 via-white/10 to-white/5 backdrop-blur-xl',
             'shadow-[0_12px_24px_rgba(0,120,255,0.1),inset_0_1px_1px_rgba(255,255,255,0.3)]',
-            'p-6 transition-all duration-300',
+            'p-6 transition-[border-color,box-shadow,filter] duration-250 ease-out',
             'hover:border-cyan-300/60 hover:shadow-[0_15px_30px_rgba(34,211,238,0.22),inset_0_1px_1px_rgba(255,255,255,0.45)] hover:brightness-110',
+            index === 0 ? 'md:col-span-2' : '',
           ].join(' ')}
         >
           {/* Glossy reflection — Frutiger Aero top highlight */}
@@ -57,7 +58,7 @@ export default function ProjectList() {
 
           {/* Header */}
           <div className="relative z-20 flex items-start justify-between gap-2">
-            <h3 className="text-lg font-bold text-white leading-snug group-hover:text-cyan-200 transition-colors break-all drop-shadow-[0_1px_2px_rgba(0,0,0,0.3)]">
+            <h3 className="text-lg font-bold text-white leading-snug group-hover:text-cyan-200 transition-colors break-all drop-shadow-[0_1px_2px_rgba(0,0,0,0.3)] font-display">
               {project.title}
             </h3>
           </div>
@@ -82,36 +83,40 @@ export default function ProjectList() {
           {/* Action buttons */}
           <div className="relative z-20 flex flex-wrap gap-2 pt-1 border-t border-white/10">
             {project.demo && (
-              <a
+              <motion.a
                 href={project.demo}
                 target="_blank"
                 rel="noreferrer"
                 onClick={(e) => e.stopPropagation()}
+                whileHover={{ scale: 1.02, y: -0.5 }}
+                whileTap={{ scale: 0.96 }}
                 className="inline-flex items-center gap-1.5 text-[11px] font-bold relative overflow-hidden
                   bg-gradient-to-b from-cyan-400/30 to-blue-500/20 hover:from-cyan-400/45 hover:to-blue-500/35 border border-cyan-300/40
                   text-cyan-200 hover:text-white rounded-xl px-3 py-1.5 shadow-md
-                  transition-all duration-200 hover:shadow-cyan-500/20 hover:scale-103"
+                  transition-[border-color,background-color,box-shadow] duration-150 ease-out hover:shadow-cyan-500/20"
               >
                 <div className="absolute inset-x-0 top-0 h-1/2 bg-gradient-to-b from-white/20 to-transparent pointer-events-none" />
                 <ExternalLink size={11} />
                 Live Demo
-              </a>
+              </motion.a>
             )}
             {project.link && (
-              <a
+              <motion.a
                 href={project.link}
                 target="_blank"
                 rel="noreferrer"
                 onClick={(e) => e.stopPropagation()}
+                whileHover={{ scale: 1.02, y: -0.5 }}
+                whileTap={{ scale: 0.96 }}
                 className="inline-flex items-center gap-1.5 text-[11px] font-semibold relative overflow-hidden
                   bg-white/10 hover:bg-white/20 border border-white/20
                   text-white/80 hover:text-white rounded-xl px-3 py-1.5 shadow-md
-                  transition-all duration-200 hover:scale-103"
+                  transition-[border-color,background-color] duration-150 ease-out"
               >
                 <div className="absolute inset-x-0 top-0 h-1/2 bg-gradient-to-b from-white/10 to-transparent pointer-events-none" />
                 <Github size={11} />
                 Source Code
-              </a>
+              </motion.a>
             )}
           </div>
         </motion.div>

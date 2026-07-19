@@ -1,11 +1,11 @@
 export const projects = [
   {
-    id: 1,
-    title: "Biomass",
-    description: "A Unity-based action/survival game prototype created for the January Rush game jam featuring custom mechanics and combat systems.",
-    tech: ["Unity", "C#", "Gameplay Systems"],
-    link: "https://github.com/Fuheshka/myindie-january-rush-lvl-8",
-    demo: "https://fuheshka.itch.io/biomass"
+    id: 6,
+    title: "Web Media Converter",
+    description: "Fast, client-side audio/video converter running fully inside the browser using WebAssembly and FFmpeg.",
+    tech: ["TypeScript", "WebAssembly", "FFmpeg", "Vite"],
+    link: "https://github.com/Fuheshka/web-media-converter",
+    demo: "https://fuheshka.github.io/web-media-converter/"
   },
   {
     id: 2,
@@ -38,13 +38,5 @@ export const projects = [
     tech: ["Godot", "GDScript", "2D Physics", "2D Lighting"],
     link: "https://github.com/Fuheshka/Neon-Catcher",
     demo: "https://fuheshka.github.io/Neon-Catcher/"
-  },
-  {
-    id: 6,
-    title: "Web Media Converter",
-    description: "Fast, client-side audio/video converter running fully inside the browser using WebAssembly and FFmpeg.",
-    tech: ["TypeScript", "WebAssembly", "FFmpeg", "Vite"],
-    link: "https://github.com/Fuheshka/web-media-converter",
-    demo: "https://fuheshka.github.io/web-media-converter/"
   }
 ];

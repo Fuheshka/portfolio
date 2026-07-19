@@ -1,5 +1,5 @@
-import { useEffect, useState } from 'react';
-import { useMotionValue, useDragControls } from 'framer-motion';
+import { useEffect, useState, useRef } from 'react';
+import { useMotionValue, useDragControls, animate } from 'framer-motion';
 import { motion } from 'framer-motion';
 import { Minimize2 } from 'lucide-react';
 import Personalization from './Personalization';
@@ -26,14 +26,99 @@ export default function Window({
   isMinimized,
   isMaximized,
   position,
+  size: sizeProp,
   onClose,
   onMinimize,
   onMaximize,
   onFocus,
   onPositionChange,
+  onSizeChange,
   customizationProps,
 }) {
   const [isMobile, setIsMobile] = useState(() => window.innerWidth < 768);
+  const [size, setSize] = useState({
+    width: sizeProp?.width ?? 620,
+    height: sizeProp?.height ?? 440,
+  });
+  const latestSize = useRef(size);
+  latestSize.current = size;
+
+  useEffect(() => {
+    if (sizeProp) {
+      setSize({ width: sizeProp.width, height: sizeProp.height });
+    }
+  }, [sizeProp]);
+
+  const handleResizeStart = (e, direction) => {
+    e.preventDefault();
+    e.stopPropagation();
+
+    const handleElement = e.currentTarget;
+    handleElement.setPointerCapture(e.pointerId);
+
+    const startX = e.clientX;
+    const startY = e.clientY;
+    const startWidth = size.width;
+    const startHeight = size.height;
+    const startXPos = x.get();
+    const startYPos = y.get();
+
+    const onPointerMove = (moveEvent) => {
+      const dx = moveEvent.clientX - startX;
+      const dy = moveEvent.clientY - startY;
+
+      let newWidth = startWidth;
+      let newHeight = startHeight;
+      let newX = startXPos;
+      let newY = startYPos;
+
+      const minW = 380;
+      const minH = 280;
+
+      if (direction.includes('e')) {
+        newWidth = Math.max(minW, startWidth + dx);
+      } else if (direction.includes('w')) {
+        const potentialWidth = startWidth - dx;
+        if (potentialWidth >= minW) {
+          newWidth = potentialWidth;
+          newX = startXPos + dx;
+        } else {
+          newWidth = minW;
+          newX = startXPos + (startWidth - minW);
+        }
+      }
+
+      if (direction.includes('s')) {
+        newHeight = Math.max(minH, startHeight + dy);
+      } else if (direction.includes('n')) {
+        const potentialHeight = startHeight - dy;
+        if (potentialHeight >= minH) {
+          newHeight = potentialHeight;
+          newY = startYPos + dy;
+        } else {
+          newHeight = minH;
+          newY = startYPos + (startHeight - minH);
+        }
+      }
+
+      setSize({ width: newWidth, height: newHeight });
+      latestSize.current = { width: newWidth, height: newHeight };
+      x.set(newX);
+      y.set(newY);
+    };
+
+    const onPointerUp = (upEvent) => {
+      handleElement.releasePointerCapture(upEvent.pointerId);
+      window.removeEventListener('pointermove', onPointerMove);
+      window.removeEventListener('pointerup', onPointerUp);
+
+      onSizeChange?.(latestSize.current);
+      onPositionChange?.({ x: x.get(), y: y.get() });
+    };
+
+    window.addEventListener('pointermove', onPointerMove);
+    window.addEventListener('pointerup', onPointerUp);
+  };
 
   useEffect(() => {
     const media = window.matchMedia('(max-width: 767px)');
@@ -42,11 +127,52 @@ export default function Window({
     return () => media.removeEventListener('change', onChange);
   }, []);
 
+  const [windowDimensions, setWindowDimensions] = useState({
+    width: window.innerWidth,
+    height: window.innerHeight
+  });
+
+  useEffect(() => {
+    const handleResize = () => {
+      setWindowDimensions({
+        width: window.innerWidth,
+        height: window.innerHeight
+      });
+    };
+    window.addEventListener('resize', handleResize);
+    return () => window.removeEventListener('resize', handleResize);
+  }, []);
+
   const x = useMotionValue(position?.x ?? 100);
   const y = useMotionValue(position?.y ?? 80);
   const dragControls = useDragControls();
 
-  if (isMinimized) return null;
+  const MENU_BAR_HEIGHT = 28;
+  const targetWidth = isMobile ? windowDimensions.width : isMaximized ? windowDimensions.width : size.width;
+  const targetHeight = isMobile ? windowDimensions.height - MENU_BAR_HEIGHT : isMaximized ? windowDimensions.height - MENU_BAR_HEIGHT : size.height;
+
+  useEffect(() => {
+    if (isMinimized) {
+      // Slide down toward the Dock (center bottom)
+      animate(x, windowDimensions.width / 2 - size.width / 2, { duration: 0.38, ease: [0.25, 1, 0.5, 1] });
+      animate(y, windowDimensions.height, { duration: 0.38, ease: [0.25, 1, 0.5, 1] });
+    } else if (isMaximized || isMobile) {
+      // Smoothly slide to top-left corner below the top MenuBar (y = 28)
+      animate(x, 0, { duration: 0.35, ease: [0.25, 1, 0.5, 1] });
+      animate(y, MENU_BAR_HEIGHT, { duration: 0.35, ease: [0.25, 1, 0.5, 1] });
+    } else {
+      // Spring back to its normal desktop position
+      animate(x, position?.x ?? 100, { type: 'spring', stiffness: 300, damping: 26 });
+      animate(y, position?.y ?? 80, { type: 'spring', stiffness: 300, damping: 26 });
+    }
+  }, [isMinimized, isMaximized, isMobile, windowDimensions]);
+
+  useEffect(() => {
+    if (!isMinimized && !isMaximized && !isMobile) {
+      animate(x, position?.x ?? 100, { type: 'spring', stiffness: 300, damping: 26 });
+      animate(y, position?.y ?? 80, { type: 'spring', stiffness: 300, damping: 26 });
+    }
+  }, [position]);
 
   return (
     <motion.div
@@ -60,24 +186,29 @@ export default function Window({
       }}
       onMouseDown={onFocus}
       initial={{ opacity: 0, scale: 0.94 }}
-      animate={{ opacity: 1, scale: 1 }}
+      animate={{
+        scale: isMinimized ? 0.15 : 1,
+        opacity: isMinimized ? 0 : 1,
+      }}
       exit={{ opacity: 0, scale: 0.90 }}
-      transition={{ type: 'spring', stiffness: 350, damping: 26 }}
+      transition={{
+        duration: 0.35,
+        ease: [0.25, 1, 0.5, 1],
+      }}
       style={{
         zIndex: isMobile ? Math.max(zIndex, 50) : zIndex,
-        x: isMobile || isMaximized ? 0 : x,
-        y: isMobile || isMaximized ? 0 : y,
+        x: x,
+        y: y,
+        width: targetWidth,
+        height: targetHeight,
+        pointerEvents: isMinimized ? 'none' : 'auto',
       }}
       className={[
         'bg-gradient-to-b from-white/35 via-white/20 to-white/10 backdrop-blur-3xl',
         'border-t border-l border-white/60 border-r border-b border-white/35',
         'shadow-[0_20px_50px_rgba(0,100,200,0.22),inset_0_1px_0_rgba(255,255,255,0.4)]',
-        'flex flex-col overflow-hidden select-none',
-        isMobile
-          ? 'fixed inset-0 w-full h-full rounded-none pt-10'
-          : isMaximized
-            ? 'fixed inset-0 w-full h-full rounded-none'
-            : 'rounded-2xl w-full h-full md:w-[620px] md:h-[440px] absolute top-0 left-0',
+        'flex flex-col overflow-hidden select-none absolute top-0 left-0',
+        isMobile || isMaximized ? 'rounded-none' : 'rounded-2xl',
       ].join(' ')}
     >
       {/* 3D Gloss reflection overlay */}
@@ -141,6 +272,22 @@ export default function Window({
       <div className="flex-1 overflow-y-auto bg-black/10 text-white relative z-20">
         <WindowContent type={type} customizationProps={customizationProps} />
       </div>
+      {/* 8-Way Resize Handles */}
+      {!isMobile && !isMaximized && (
+        <>
+          {/* Edges */}
+          <div onPointerDown={(e) => handleResizeStart(e, 'n')} className="absolute top-0 left-2 right-2 h-1.5 -translate-y-1/2 cursor-ns-resize z-40" />
+          <div onPointerDown={(e) => handleResizeStart(e, 's')} className="absolute bottom-0 left-2 right-2 h-1.5 translate-y-1/2 cursor-ns-resize z-40" />
+          <div onPointerDown={(e) => handleResizeStart(e, 'w')} className="absolute left-0 top-2 bottom-2 w-1.5 -translate-x-1/2 cursor-ew-resize z-40" />
+          <div onPointerDown={(e) => handleResizeStart(e, 'e')} className="absolute right-0 top-2 bottom-2 w-1.5 translate-x-1/2 cursor-ew-resize z-40" />
+
+          {/* Corners */}
+          <div onPointerDown={(e) => handleResizeStart(e, 'nw')} className="absolute top-0 left-0 w-3 h-3 -translate-x-1/2 -translate-y-1/2 cursor-nwse-resize z-50" />
+          <div onPointerDown={(e) => handleResizeStart(e, 'ne')} className="absolute top-0 right-0 w-3 h-3 translate-x-1/2 -translate-y-1/2 cursor-nesw-resize z-50" />
+          <div onPointerDown={(e) => handleResizeStart(e, 'sw')} className="absolute bottom-0 left-0 w-3 h-3 -translate-x-1/2 translate-y-1/2 cursor-nesw-resize z-50" />
+          <div onPointerDown={(e) => handleResizeStart(e, 'se')} className="absolute bottom-0 right-0 w-3 h-3 translate-x-1/2 translate-y-1/2 cursor-nwse-resize z-50" />
+        </>
+      )}
     </motion.div>
   );
 }
