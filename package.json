@@ -4,6 +4,20 @@
   "version": "0.0.0",
   "type": "module",
   "homepage": "https://Fuheshka.github.io/portfolio",
+  "keywords": [
+    "portfolio",
+    "frutiger-aero",
+    "web-os",
+    "desktop-ui",
+    "react",
+    "vite",
+    "tailwindcss",
+    "framer-motion",
+    "glassmorphism",
+    "aero-glass",
+    "technical-art",
+    "game-developer-portfolio"
+  ],
   "scripts": {
     "dev": "vite",
     "build": "vite build",
