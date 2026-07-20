@@ -1,12 +1,12 @@
-import { useState } from 'react';
-import { Volume2, VolumeX, MousePointer, Image, Eye, Sparkles } from 'lucide-react';
+import { Volume2, VolumeX, Image, Eye, Sparkles, Globe } from 'lucide-react';
 import { playClickSound } from '../utils/audio';
+import { useLanguage } from '../context/LanguageContext';
 
 const WALLPAPERS = [
-  { id: 'default', label: 'Classic Aero', src: 'assets/frutiger_aero_wallpaper.png' },
-  { id: 'aurora',  label: 'Aurora Waves', src: 'assets/aurora_aero.png' },
-  { id: 'eco',     label: 'Eco Glass',    src: 'assets/eco_glass.png' },
-  { id: 'water',   label: 'Water Sphere', src: 'assets/water_sphere.png' },
+  { id: 'default', key: 'default', src: 'assets/frutiger_aero_wallpaper.png' },
+  { id: 'aurora',  key: 'aurora',  src: 'assets/aurora_aero.png' },
+  { id: 'eco',     key: 'eco',     src: 'assets/eco_glass.png' },
+  { id: 'water',   key: 'water',   src: 'assets/water_sphere.png' },
 ];
 
 export default function Personalization({
@@ -17,6 +17,8 @@ export default function Personalization({
   soundEnabled,
   setSoundEnabled,
 }) {
+  const { lang, setLang, t } = useLanguage();
+
   const handleWallpaperClick = (id) => {
     playClickSound();
     setWallpaper(id);
@@ -32,17 +34,61 @@ export default function Personalization({
     setSoundEnabled(!soundEnabled);
   };
 
+  const handleLangSelect = (newLang) => {
+    playClickSound();
+    setLang(newLang);
+  };
+
   return (
     <div className="p-5 pb-8 flex flex-col gap-6 font-sans text-white/90 max-w-full overflow-x-hidden">
+      {/* System Language Selector */}
+      <div className="bg-white/10 p-4 rounded-xl border border-white/20 shadow-md backdrop-blur-md relative overflow-hidden">
+        <div className="absolute inset-x-0 top-0 h-1/2 bg-gradient-to-b from-white/10 to-transparent pointer-events-none" />
+        
+        <h3 className="text-sm font-bold text-cyan-200 mb-3 flex items-center gap-1.5 font-display drop-shadow-[0_0.5px_1px_rgba(0,0,0,0.2)]">
+          <Globe size={13} className="text-cyan-300" />
+          {t('pers_lang')}
+        </h3>
+
+        <div className="grid grid-cols-2 gap-3">
+          <button
+            onClick={() => handleLangSelect('en')}
+            className={[
+              'p-2.5 rounded-xl border text-xs font-bold flex items-center justify-between cursor-pointer transition-all',
+              lang === 'en'
+                ? 'border-cyan-300 bg-cyan-500/20 text-white shadow-[0_0_12px_rgba(34,211,238,0.35)]'
+                : 'border-white/20 hover:border-white/40 bg-black/15 text-white/70 hover:text-white',
+            ].join(' ')}
+          >
+            <span>🇬🇧 English</span>
+            {lang === 'en' && <span className="w-2 h-2 rounded-full bg-cyan-300 shadow-[0_0_6px_rgba(34,211,238,1)]" />}
+          </button>
+
+          <button
+            onClick={() => handleLangSelect('ru')}
+            className={[
+              'p-2.5 rounded-xl border text-xs font-bold flex items-center justify-between cursor-pointer transition-all',
+              lang === 'ru'
+                ? 'border-cyan-300 bg-cyan-500/20 text-white shadow-[0_0_12px_rgba(34,211,238,0.35)]'
+                : 'border-white/20 hover:border-white/40 bg-black/15 text-white/70 hover:text-white',
+            ].join(' ')}
+          >
+            <span>🇷🇺 Русский</span>
+            {lang === 'ru' && <span className="w-2 h-2 rounded-full bg-cyan-300 shadow-[0_0_6px_rgba(34,211,238,1)]" />}
+          </button>
+        </div>
+      </div>
+
       {/* Wallpaper Selection */}
       <div>
         <h3 className="text-sm font-bold text-cyan-200 mb-3 flex items-center gap-1.5 font-display drop-shadow-[0_0.5px_1px_rgba(0,0,0,0.2)]">
-          <Image size={12} className="text-cyan-300" />
-          Desktop Background
+          <Image size={13} className="text-cyan-300" />
+          {t('pers_bg')}
         </h3>
         <div className="grid grid-cols-2 gap-3">
           {WALLPAPERS.map((wp) => {
             const isSelected = currentWallpaper === wp.id;
+            const wpLabel = t(`wallpapers.${wp.key}`);
             return (
               <button
                 key={wp.id}
@@ -58,14 +104,14 @@ export default function Personalization({
                 <div className="h-16 w-full overflow-hidden relative bg-slate-950">
                   <img
                     src={`${import.meta.env.BASE_URL}${wp.src}`}
-                    alt={wp.label}
+                    alt={wpLabel}
                     className="w-full h-full object-cover transition-transform duration-300 group-hover:scale-105"
                   />
                   <div className="absolute inset-0 bg-gradient-to-b from-white/10 to-transparent pointer-events-none" />
                 </div>
                 {/* Label */}
                 <div className="p-2 text-xs font-bold flex items-center justify-between">
-                  <span>{wp.label}</span>
+                  <span>{wpLabel}</span>
                   {isSelected && (
                     <span className="w-2 h-2 rounded-full bg-cyan-300 shadow-[0_0_6px_rgba(34,211,238,1)]" />
                   )}
@@ -81,8 +127,8 @@ export default function Personalization({
         <div className="absolute inset-x-0 top-0 h-1/2 bg-gradient-to-b from-white/10 to-transparent pointer-events-none" />
         
         <h3 className="text-sm font-bold text-cyan-200 mb-3 flex items-center gap-1.5 font-display drop-shadow-[0_0.5px_1px_rgba(0,0,0,0.2)]">
-          <Eye size={12} className="text-cyan-300" />
-          Wallpaper Blur
+          <Eye size={13} className="text-cyan-300" />
+          {t('pers_blur')}
         </h3>
 
         <div className="flex items-center gap-4">
@@ -98,7 +144,7 @@ export default function Personalization({
           />
           <span className="text-xs font-bold text-cyan-200 min-w-8 text-right font-mono">{blurAmount}px</span>
         </div>
-        <p className="text-[10px] text-white/60 mt-2 italic">Adjust window background readability contrast.</p>
+        <p className="text-[10px] text-white/60 mt-2 italic">{t('pers_blur_desc')}</p>
       </div>
 
       {/* Toggle Controls */}
@@ -124,8 +170,10 @@ export default function Personalization({
               )}
             </div>
             <div>
-              <div className="text-xs font-bold">Sound Effects</div>
-              <div className="text-[10px] text-white/60 mt-0.5">{soundEnabled ? 'Enabled' : 'Muted'}</div>
+              <div className="text-xs font-bold">{t('pers_sound')}</div>
+              <div className="text-[10px] text-white/60 mt-0.5">
+                {soundEnabled ? t('pers_sound_enabled') : t('pers_sound_muted')}
+              </div>
             </div>
           </div>
           {/* Glass Toggle Pill */}
@@ -143,7 +191,7 @@ export default function Personalization({
 
       <div className="flex items-center justify-center gap-1.5 text-[10px] text-white/45 select-none pt-2">
         <Sparkles size={10} />
-        <span>Frutiger Aero Customizer v1.0</span>
+        <span>{t('pers_footer')}</span>
       </div>
     </div>
   );

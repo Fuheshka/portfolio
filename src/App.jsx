@@ -6,13 +6,7 @@ import Taskbar from './components/Taskbar';
 import MenuBar from './components/MenuBar';
 import Wallpaper from './components/Wallpaper';
 import { playBootSound, playOpenSound, playMinimizeSound, playClickSound, setSoundEnabled } from './utils/audio';
-
-const APPS = [
-  { id: 'projects', label: 'Projects', icon: Folder },
-  { id: 'about',    label: 'About Me', icon: User   },
-  { id: 'contact',  label: 'Contact',  icon: Mail   },
-  { id: 'personalization', label: 'Personalization', icon: Sliders },
-];
+import { useLanguage } from './context/LanguageContext';
 
 const CASCADE_OFFSET = 30;
 const BASE_X = 80;
@@ -22,6 +16,7 @@ let zCounter = 100;
 function nextZ() { return ++zCounter; }
 
 export default function App() {
+  const { lang, t } = useLanguage();
   const [isBooting, setIsBooting]   = useState(true);
   const [isShutDown, setIsShutDown] = useState(false);
   const [windows, setWindows]       = useState([]);
@@ -39,6 +34,13 @@ export default function App() {
 
   const [bootProgress, setBootProgress] = useState(0);
 
+  const APPS = [
+    { id: 'projects', label: t('app_projects'), icon: Folder },
+    { id: 'about',    label: t('app_about'),    icon: User   },
+    { id: 'contact',  label: t('app_contact'),  icon: Mail   },
+    { id: 'personalization', label: t('app_personalization'), icon: Sliders },
+  ];
+
   useEffect(() => {
     localStorage.setItem('aero_wallpaper', wallpaper);
   }, [wallpaper]);
@@ -54,12 +56,22 @@ export default function App() {
 
   useEffect(() => {
     if (bootProgress < 100) {
-      const t = setTimeout(() => {
+      const tTimer = setTimeout(() => {
         setBootProgress((prev) => Math.min(prev + 5, 100));
       }, 80);
-      return () => clearTimeout(t);
+      return () => clearTimeout(tTimer);
     }
   }, [bootProgress]);
+
+  // Keep open window titles synced with active language
+  useEffect(() => {
+    setWindows((prev) =>
+      prev.map((w) => {
+        const app = APPS.find((a) => a.id === w.id);
+        return app ? { ...w, title: app.label } : w;
+      })
+    );
+  }, [lang]);
 
   function handleLogin() {
     playBootSound();
@@ -158,13 +170,13 @@ export default function App() {
   // ── Boot / Welcome screen ───────────────────────────────────────────────
   if (isBooting) {
     return (
-      <div className="relative h-screen w-screen flex items-center justify-center overflow-hidden">
+      <div className="relative h-screen w-screen flex items-center justify-center overflow-hidden font-sans">
         {/* Blurred dynamic wallpaper matching user preference */}
         <Wallpaper currentWallpaper={wallpaper} blurAmount={24} />
 
         <div className="z-10 flex flex-col items-center gap-6 select-none">
           {/* Glassmorphic User Logon Card */}
-          <div className="bg-white/15 border border-white/35 rounded-3xl backdrop-blur-2xl p-8 shadow-2xl flex flex-col items-center gap-5 relative overflow-hidden w-76 text-center">
+          <div className="bg-white/15 border border-white/35 rounded-3xl backdrop-blur-2xl p-8 shadow-2xl flex flex-col items-center gap-5 relative overflow-hidden w-80 text-center">
             {/* Glossy top overlay reflection */}
             <div className="absolute inset-0 pointer-events-none bg-gradient-to-tr from-transparent via-white/5 to-white/10 z-20" />
             
@@ -176,7 +188,7 @@ export default function App() {
 
             <div>
               <h2 className="text-white font-extrabold text-lg tracking-wide drop-shadow-[0_1px_2px_rgba(0,0,0,0.3)]">Fuheshka</h2>
-              <p className="text-[11px] text-cyan-200/90 font-bold uppercase tracking-wider mt-0.5">Technical Artist</p>
+              <p className="text-[11px] text-cyan-200/90 font-bold uppercase tracking-wider mt-0.5">{t('boot_sub')}</p>
             </div>
 
             {bootProgress < 100 ? (
@@ -189,7 +201,7 @@ export default function App() {
                   />
                 </div>
                 <div className="text-[9px] text-cyan-200/50 uppercase tracking-[0.2em] font-bold font-mono">
-                  Loading {bootProgress}%
+                  {t('boot_loading')} {bootProgress}%
                 </div>
               </div>
             ) : (
@@ -199,7 +211,7 @@ export default function App() {
                 className="w-full py-2.5 mt-2 rounded-xl bg-gradient-to-b from-cyan-400/40 to-blue-500/25 hover:from-cyan-400/50 hover:to-blue-500/35 border border-cyan-300/80 text-white font-extrabold text-xs tracking-widest uppercase shadow-[0_4px_15px_rgba(34,211,238,0.2),inset_0_1px_1px_rgba(255,255,255,0.45)] cursor-pointer hover:scale-102 active:scale-98 transition-all duration-200 relative overflow-hidden"
               >
                 <div className="absolute inset-x-0 top-0 h-1/2 bg-gradient-to-b from-white/20 to-transparent pointer-events-none" />
-                Log In
+                {t('boot_login')}
               </button>
             )}
           </div>
@@ -225,14 +237,14 @@ export default function App() {
           <Power size={32} className="text-red-400" />
         </motion.button>
         <span className="text-white/60 text-xs font-bold uppercase tracking-widest mt-4 font-display">
-          System Offline · Click to Power On
+          {t('shutdown_text')}
         </span>
       </div>
     );
   }
 
   const activeWindow = windows.find((w) => w.id === activeId);
-  const activeTitle = activeWindow ? activeWindow.title : 'Finder';
+  const activeTitle = activeWindow ? activeWindow.title : t('app_finder');
 
   return (
     <div className="relative h-screen w-screen overflow-hidden">
@@ -324,4 +336,3 @@ export default function App() {
     </div>
   );
 }
-

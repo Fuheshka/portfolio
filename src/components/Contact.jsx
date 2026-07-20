@@ -1,6 +1,7 @@
 import { useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Github, Mail, Send, MessageCircle, Check, Copy } from 'lucide-react';
+import { useLanguage } from '../context/LanguageContext';
 
 const EMAIL = 'fuheshka@gmail.com';
 
@@ -57,6 +58,7 @@ function SocialButton({ item, delay }) {
 }
 
 export default function Contact() {
+  const { lang, t } = useLanguage();
   const [copied, setCopied] = useState(false);
 
   async function copyEmail() {
@@ -68,6 +70,9 @@ export default function Contact() {
       setCopied(false);
     }
   }
+
+  const copiedLabel = lang === 'ru' ? 'Скопировано!' : 'Copied!';
+  const copyHint = lang === 'ru' ? 'нажмите на email для мгновенного копирования' : 'click email to copy instantly';
 
   return (
     <div className="min-h-full flex items-center justify-center p-6 font-sans">
@@ -84,8 +89,12 @@ export default function Contact() {
         <div className="absolute inset-x-0 top-0 h-1/2 bg-gradient-to-b from-white/15 to-transparent pointer-events-none rounded-t-2xl z-10" />
 
         <div className="relative z-10 text-left mb-5 select-none">
-          <h2 className="text-2xl font-bold text-white drop-shadow-[0_1.5px_2.5px_rgba(0,0,0,0.3)] font-display">Let&apos;s Connect</h2>
-          <p className="text-xs text-cyan-200 drop-shadow-[0_0.5px_1px_rgba(0,0,0,0.15)] font-semibold mt-1">Open for freelance and collaboration</p>
+          <h2 className="text-2xl font-bold text-white drop-shadow-[0_1.5px_2.5px_rgba(0,0,0,0.3)] font-display">
+            {t('contact_heading')}
+          </h2>
+          <p className="text-xs text-cyan-200 drop-shadow-[0_0.5px_1px_rgba(0,0,0,0.15)] font-semibold mt-1">
+            {t('contact_sub')}
+          </p>
         </div>
 
         <div className="relative z-10 flex flex-col gap-3">
@@ -96,12 +105,12 @@ export default function Contact() {
             className="relative w-full h-14 rounded-xl border border-cyan-300/65 bg-gradient-to-b from-cyan-400/40 to-blue-500/25
               hover:from-cyan-400/50 hover:to-blue-500/35 shadow-[0_10px_25px_rgba(0,180,255,0.18),inset_0_1px_1px_rgba(255,255,255,0.45)]
               text-white font-bold text-base transition-[border-color,background-color,box-shadow] duration-200 ease-out
-              flex items-center justify-center gap-2 overflow-hidden"
+              flex items-center justify-center gap-2 overflow-hidden cursor-pointer"
           >
             {/* Button gloss highlight */}
             <div className="absolute inset-x-0 top-0 h-1/2 bg-gradient-to-b from-white/20 to-transparent pointer-events-none" />
             {copied ? <Check size={20} className="drop-shadow-[0_1px_1px_rgba(0,0,0,0.2)]" /> : <Mail size={20} className="drop-shadow-[0_1px_1px_rgba(0,0,0,0.2)]" />}
-            {copied ? 'Copied!' : EMAIL}
+            {copied ? copiedLabel : EMAIL}
 
             <AnimatePresence>
               {copied && (
@@ -114,7 +123,7 @@ export default function Contact() {
                     text-[11px] font-semibold text-white bg-black/60 backdrop-blur-md
                     border border-white/25 rounded-md px-2 py-1 shadow-lg"
                 >
-                  copied!
+                  {copiedLabel}
                 </motion.span>
               )}
             </AnimatePresence>
@@ -128,7 +137,7 @@ export default function Contact() {
 
           <p className="text-xs text-white/60 text-left mt-1 inline-flex items-center justify-start gap-1.5 select-none drop-shadow-[0_0.5px_1px_rgba(0,0,0,0.1)]">
             <Copy size={13} className="text-white/70" />
-            click email to copy instantly
+            {copyHint}
           </p>
         </div>
       </motion.div>
